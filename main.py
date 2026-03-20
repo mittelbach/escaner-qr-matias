@@ -26,7 +26,7 @@ st.markdown("""
 
 st.title("🔍 Find Easy")
 
-# 2. INGRESO MANUAL
+# 2. INGRESO MANUAL (Tal cual lo pediste)
 with st.expander("⌨️ Ingresar código manualmente"):
     ean_manual = st.text_input("Escribí los números:")
     boton_manual = st.button("Buscar")
@@ -47,23 +47,22 @@ elif foto:
     else:
         st.warning("No se detectó el código en la foto.")
 
-# 4. RESULTADOS
+# 4. RESULTADOS - ANÁLISIS DE ENLACES
 if ean_final:
     st.success(f"Buscando: {ean_final}")
     
-    # Lista de tiendas simplificada para evitar errores de sintaxis
+    # Optimizamos los links para que Google ayude a encontrar el EAN
     tiendas = [
-        ["Cooperativa Obrera", f"https://www.lacoopeencasa.coop/buscar?q={ean_final}"],
+        ["La Coope", f"https://www.lacoopeencasa.coop/buscar?q={ean_final}"],
         ["Carrefour", f"https://www.google.com.ar/search?q=site:carrefour.com.ar+{ean_final}"],
-        ["Coto Digital", f"https://www.cotodigital3.com.ar/sitios/cdigi/browse?question={ean_final}"],
-        ["Jumbo", f"https://www.google.com.ar/search?q=site:jumbo.com.ar+{ean_final}"],
+        ["Coto", f"https://www.google.com.ar/search?q=site:cotodigital3.com.ar+{ean_final}"],
         ["Vea", f"https://www.google.com.ar/search?q=site:vea.com.ar+{ean_final}"],
-        ["Día", f"https://www.google.com.ar/search?q=site:supermerca-dosdia.com.ar+{ean_final}"]
+        ["Día", f"https://www.google.com.ar/search?q=site:supermerca-dosdia.com.ar+{ean_final}"],
+        ["Google Shopping", f"https://www.google.com.ar/search?q={ean_final}&tbm=shop"]
     ]
     
     for t in tiendas:
-        nombre = t[0]
-        url = t[1]
+        nombre, url = t[0], t[1]
         st.markdown(f'<a href="{url}" target="_blank" class="res-block">{nombre}: Consultar</a>', unsafe_allow_html=True)
 
 st.caption("Find Easy v1.2 | Laprida")
