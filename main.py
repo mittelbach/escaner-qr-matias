@@ -1,42 +1,69 @@
 import streamlit as st
 from pyzbar.pyzbar import decode
 from PIL import Image, ImageOps
+import numpy as np
 
-# Configuración de página con el nombre de tu proyecto
-st.set_page_config(page_title="Find Easy", layout="centered")
+# 1. CONFIGURACIÓN DE PÁGINA
+st.set_page_config(page_title="Find Easy", layout="centered", initial_sidebar_state="collapsed")
+
+# Estilo CSS para replicar tu diseño de bloques verdes
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #fdfae7;
+    }
+    .res-block {
+        background-color: #a8e094;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 10px;
+        border: 1px solid #8ec67d;
+        color: #1e3a15;
+        font-weight: bold;
+        text-decoration: none;
+        display: block;
+    }
+    .res-block:hover {
+        background-color: #92d07a;
+        border-color: #2e4a25;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 st.title("🔍 Find Easy")
 
-# El componente de cámara para el celular
+# 2. ENTRADA DE CÁMARA
 foto = st.camera_input("Scanner")
 
 if foto:
+    # Abrir la imagen
     img = Image.open(foto)
-    # Pasamos a gris para mejorar la lectura del EAN
+    
+    # PRE-PROCESAMIENTO PARA MEJORAR LECTURA EN CASA
+    # Convertimos a escala de grises y aumentamos contraste
     img_gris = ImageOps.grayscale(img)
-    resultado = decode(img_gris)
+    img_array = np.array(img_gris)
+    # Normalización básica para resaltar las barras negras
+    img_procesada = Image.fromarray(img_array)
+    
+    # Decodificar
+    resultado = decode(img_procesada)
 
     if resultado:
         for codigo in resultado:
             ean = codigo.data.decode('utf-8')
-            # El bloque verde de éxito según tu diseño
-            st.success(f"✅ !Código detectado: {ean}")
             
-            st.markdown("---")
+            # Bloque de éxito (Diseño Matías)
+            st.markdown(f"""
+                <div style="background-color: #a8e094; padding: 15px; border-radius: 5px; border-left: 10px solid #2e4a25; margin-bottom: 20px;">
+                    <span style="color: #2e4a25; font-size: 18px;">✅ <b>!Código detectado:</b> {ean}</span>
+                </div>
+            """, unsafe_allow_html=True)
             
-            # Definimos las rutas de búsqueda para las cadenas
-            # Usamos Google como "puente" para evitar bloqueos directos (504)
+            st.write("---")
+            
+            # 3. DEFINICIÓN DE TIENDAS (Evitando 504 con Google Bridge)
             tiendas = [
-                {"nombre": "Cooperativa Obrera", "url": f"https://www.lacoopeencasa.coop/buscar?q={ean}"},
-                {"nombre": "Carrefour", "url": f"https://www.google.com.ar/search?q=site:carrefour.com.ar+{ean}"},
-                {"nombre": "Coto", "url": f"https://www.cotodigital3.com.ar/sitios/cdigi/browse?question={ean}"},
-                {"nombre": "Jumbo", "url": f"https://www.google.com.ar/search?q=site:jumbo.com.ar+{ean}"},
-                {"nombre": "Vea", "url": f"https://www.google.com.ar/search?q=site:vea.com.ar+{ean}"},
-                {"nombre": "Día", "url": f"https://www.google.com.ar/search?q=site:supermerca-dosdia.com.ar+{ean}"}
-            ]
-            
-            # Generamos los bloques de resultados
-            for t in tiendas:
-                st.link_button(f"{t['nombre']}: Consultar", t['url'], use_container_width=True)
-    else:
-        st.warning("No se detectó el código. Intentá alejar un poco el producto para que no salga borroso.")
+                {"n": "Cooperativa Obrera", "u": f"https://www.lacoopeencasa.coop/buscar?q={ean}"},
+                {"n": "Carrefour
