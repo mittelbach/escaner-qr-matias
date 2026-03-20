@@ -1,51 +1,48 @@
 import streamlit as st
 import urllib.parse
 
-# Configuración de la App - Nodo Laprida
-st.set_page_config(page_title="Easy Find - Sensor GS1", layout="centered")
+st.set_page_config(page_title="Easy Find - Sensor de Plaza", layout="centered")
 st.title("🔍 Easy Find: Sensor de Plaza")
 
 # 1. ENTRADA DE DATOS
-st.markdown("### 1. Captura de Identidad Oficial")
+st.markdown("### 1. Captura de Identidad")
 ean_input = st.text_input("Pegá el Código EAN-13:", placeholder="Ej: 7798144810014")
 
 if ean_input:
     ean_limpio = ean_input.strip()
+    query_ean = urllib.parse.quote(ean_limpio)
     
-    # PASO 1: Consulta Directa a GS1 (La Fuente de Verdad)
-    st.info("**Paso 1:** Consultá la base de datos oficial de GS1 para ver quién es el dueño del código.")
+    st.info("Paso 1: Identificar producto. Si uno falla, probá el otro:")
     
-    # URL directa al buscador de GS1 Argentina
-    # Nota: El usuario debe pegar el código en la web de destino, 
-    # ya que GS1 requiere validación manual por seguridad.
-    url_gs1 = "https://www.gs1.org.ar/Sitio/Bootstrap5/VerifiedGO.html"
+    col1, col2 = st.columns(2)
     
-    st.markdown(f'''
-        <a href="{url_gs1}" target="_blank" style="text-decoration:none;">
-            <div style="background-color: #002C6C; color: white; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px;">
-                🏢 Consultar Identidad en GS1 Argentina (Oficial)
-            </div>
-        </a>
-    ''', unsafe_allow_html=True)
+    with col1:
+        # Radar 1: Open Food Facts (Muy bueno para alimentos en Argentina)
+        url_off = f"https://ar.openfoodfacts.org/producto/{ean_limpio}"
+        st.markdown(f'''<a href="{url_off}" target="_blank"><div style="background-color: #FF8C00; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold;">🍎 Radar OpenFood</div></a>''', unsafe_allow_html=True)
+    
+    with col2:
+        # Radar 2: Búsqueda Exacta en Google (Lo que hicimos con Agroliva)
+        url_google = f"https://www.google.com.ar/search?q=%22{ean_limpio}%22"
+        st.markdown(f'''<a href="{url_google}" target="_blank"><div style="background-color: #4285F4; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold;">🔎 Radar Google</div></a>''', unsafe_allow_html=True)
 
     st.divider()
 
-    # PASO 2: Confirmación Semántica
+    # 2. CONFIRMACIÓN SEMÁNTICA
     st.markdown("### 2. Confirmación de Producto")
-    st.write("Una vez que GS1 te dé el nombre (ej: Agroliva), escribilo acá:")
-    nombre_real = st.text_input("Nombre del Producto / Marca:", value="")
+    st.write("Escribí el nombre que te dieron los radares (ej: Agroliva):")
+    nombre_real = st.text_input("Nombre o Marca confirmada:", value="")
     
     if nombre_real:
         query_final = urllib.parse.quote(nombre_real)
         
+        # 3. EL MOTOR DE VALOR (Vuelo a Shopping)
         st.subheader("Paso 3: Análisis de Valor de Plaza")
-        
-        # EL MOTOR DE VALOR: Google Shopping
         url_shopping = f"https://www.google.com.ar/search?q={query_final}&tbm=shop"
         
         st.markdown(f'''
             <a href="{url_shopping}" target="_blank" style="text-decoration:none;">
-                <div style="background-color: #34A853; color: white; padding: 25px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.3em; border: 2px solid #2d8e47; margin-bottom: 20px;">
+                <div style="background-color: #34A853; color: white; padding: 25px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.3em; border: 2px solid #2d8e47;">
                     🛒 VER VALOR EN GOOGLE SHOPPING
                 </div>
             </a>
